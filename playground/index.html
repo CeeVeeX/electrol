@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+  <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+  <title>Hello from Electron renderer!</title>
+</head>
+
+<body>
+  <div>
+    <button id="btn">按钮1</button>
+    <button id="btn2">按钮2</button>
+  </div>
+  <div id="info"></div>
+
+  <!-- <script>
+    document.getElementById('btn').addEventListener('click', () => {
+      document.getElementById('info').innerHTML += '<p>按钮1被点击了</p>';
+    });
+
+    document.getElementById('btn2').addEventListener('click', () => {
+      document.getElementById('info').innerHTML += '<p>按钮2被点击了</p>';
+    });
+
+    // hover
+    document.getElementById('btn').addEventListener('mouseover', () => {
+      document.getElementById('info').innerHTML += '<p>按钮1被悬停了</p>';
+    });
+
+    document.getElementById('btn2').addEventListener('mouseover', () => {
+      document.getElementById('info').innerHTML += '<p>按钮2被悬停了</p>';
+    });
+  </script> -->
+</body>
+
+</html>
