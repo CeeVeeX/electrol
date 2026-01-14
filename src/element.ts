@@ -1,4 +1,5 @@
 import type { WebContents } from 'electron'
+import { getHumanTypingDelay, sleep } from './utils'
 
 /**
  * 扩展版的元素位置信息，基于 DOMRect 并补充中心点坐标。
@@ -195,7 +196,7 @@ export class ElementHandle {
         clickCount: 1,
       })
 
-      await new Promise(resolve => setTimeout(resolve, options?.delay || 10))
+      await sleep(options?.delay || 10)
 
       this.contents.sendInputEvent({
         type: 'mouseUp',
@@ -273,24 +274,48 @@ export class ElementHandle {
    * 填充输入框内容。
    * - 适用于 `<input>`、`<textarea>` 或 `contenteditable` 元素。
    * - 会触发 `input` 事件（冒泡）。
+   * - 支持自定义输入间隔, 'auto' 表示模拟自然输入节奏
+   * @example
+   * ```
+   * await element.fill('Hello, World!', { interval: 100 });
+   * ```
    */
   async fill(value: string, options?: {
     timeout?: number
+    interval?: number | 'auto'
+    append?: boolean
   }) {
-    await this.contents.executeJavaScript(/* js */`
+    await this.focus({
+      timeout: options?.timeout,
+    })
+
+    let interval: number | undefined
+
+    if (typeof options?.interval === 'number') {
+      interval = options?.interval
+    }
+
+    // 如果不追加内容，则清空输入框
+    if (!options?.append) {
+      await this.contents.executeJavaScript(`
       (function() {
         const target = ${this._getElement(options?.timeout)};
-        if (!target) return null;
-
-        // 验证输入框是否是文本类型
-        if (target.element.tagName !== 'INPUT' && target.element.tagName !== 'TEXTAREA' && !target.element.isContentEditable) return null;
-
-        target.element.focus();
-
-        target.element.value = ${JSON.stringify(value)};
-        target.element.dispatchEvent(new Event('input', { bubbles: true }));
+        if (target && target.element) {
+          if (target.element.tagName !== 'INPUT' && target.element.tagName !== 'TEXTAREA' && !target.element.isContentEditable) return null;
+          target.element.value = "";
+        }
       })()
     `)
+    }
+
+    for (let index = 0; index < value.length; index++) {
+      await sleep(interval || getHumanTypingDelay(index, value))
+
+      this.contents.sendInputEvent({
+        type: 'char',
+        keyCode: value[index],
+      })
+    }
   }
 
   /**
@@ -316,7 +341,7 @@ export class ElementHandle {
       })
     }
 
-    await new Promise(resolve => setTimeout(resolve, options?.delay || 10))
+    await sleep(options?.delay || 10)
 
     for (const key of keys) {
       this.contents.sendInputEvent({
