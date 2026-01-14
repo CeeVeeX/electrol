@@ -3,6 +3,10 @@ import ElementHandle from './element'
 import LocalStorage from './localStorage'
 import SessionStorage from './sessionStorage'
 
+export * from './element'
+export * from './localStorage'
+export * from './sessionStorage'
+
 export class Electrol {
   readonly localStorage: LocalStorage
   readonly sessionStorage: SessionStorage
@@ -10,8 +14,6 @@ export class Electrol {
   constructor(public readonly contents: WebContents) {
     this.localStorage = new LocalStorage(contents)
     this.sessionStorage = new SessionStorage(contents)
-
-    console.log(123)
   }
 
   $(selector: string) {

@@ -138,6 +138,11 @@ export class ElementHandle {
     `)
   }
 
+  /**
+   * 点击
+   * 注意：此操作会触发鼠标悬浮事件
+   * @param options 点击选项
+   */
   async click(options?: {
     button?: 'left' | 'right' | 'middle'
     clickCount?: number
@@ -151,7 +156,7 @@ export class ElementHandle {
     if (!rect)
       return
 
-    const _click = async () => {
+    const _handle = async () => {
       this.contents.sendInputEvent({
         type: 'mouseDown',
         x: rect.centerX,
@@ -160,7 +165,7 @@ export class ElementHandle {
         clickCount: 1,
       })
 
-      await new Promise(resolve => setTimeout(resolve, options?.delay || 100))
+      await new Promise(resolve => setTimeout(resolve, options?.delay || 10))
 
       this.contents.sendInputEvent({
         type: 'mouseUp',
@@ -171,25 +176,143 @@ export class ElementHandle {
       })
     }
 
+    if (options?.modifiers) {
+      for (const modifier of options.modifiers) {
+        this.contents.sendInputEvent({
+          type: 'keyDown',
+          keyCode: modifier,
+        })
+      }
+    }
+
     if (options?.clickCount) {
       for (let i = 0; i < options.clickCount; i++) {
-        await _click()
+        await _handle()
       }
     }
     else {
-      await _click()
+      await _handle()
+    }
+
+    if (options?.modifiers) {
+      for (const modifier of options.modifiers) {
+        this.contents.sendInputEvent({
+          type: 'keyUp',
+          keyCode: modifier,
+        })
+      }
     }
   }
 
-  dblclick() {}
+  /**
+   * 双击
+   * @param options 双击选项
+   */
+  async dblclick(options?: {
+    button?: 'left' | 'right' | 'middle'
+    delay?: number
+    modifiers?: ('Alt' | 'Control' | 'ControlOrMeta' | 'Meta' | 'Shift')[]
+    position?: IVector2D
+    timeout?: number
+  }) {
+    return this.click({
+      ...options,
+      clickCount: 2,
+    })
+  }
 
-  check() {}
+  /**
+   * 复选框或单选按钮
+   */
+  check() {
+    return this.contents.executeJavaScript(/* js */`
+      (function() {
+        const target = ${this._getElement()};
+        if (!target) return null;
 
-  fill() {}
+        // 验证输入框是否是复选框或单选按钮
+        if (target.element.tagName !== 'INPUT' || (target.element.type !== 'checkbox' && target.element.type !== 'radio')) return null;
 
-  press() {}
+        target.element.checked = true;
+        target.element.dispatchEvent(new Event('change', { bubbles: true }));
+      })()
+    `)
+  }
 
-  focus() {}
+  /**
+   * 填充输入框, Value to set for the <input>, <textarea> or [contenteditable] element.
+   * @param value 输入的值
+   * @param options 选项
+   * @returns
+   */
+  async fill(value: string, options?: {
+    timeout?: number
+  }) {
+    await this.contents.executeJavaScript(/* js */`
+      (function() {
+        const target = ${this._getElement(options?.timeout)};
+        if (!target) return null;
+
+        // 验证输入框是否是文本类型
+        if (target.element.tagName !== 'INPUT' && target.element.tagName !== 'TEXTAREA' && !target.element.isContentEditable) return null;
+
+        target.element.focus();
+
+        target.element.value = ${JSON.stringify(value)};
+        target.element.dispatchEvent(new Event('input', { bubbles: true }));
+      })()
+    `)
+  }
+
+  /**
+   * 聚焦元素，然后使用keyboard.down() 和keyboard.up()。
+   * @param key 要按下的键
+   * @param options 选项
+   * @returns
+   * @example
+   * press('a', { delay: 100, timeout: 1000 });
+   * press('Control+Shift+T'});
+   */
+  async press(key: string, options?: {
+    delay?: number
+    timeout?: number
+  }) {
+    await this.focus(options)
+
+    const keys = key.split('+')
+
+    for (const key of keys) {
+      this.contents.sendInputEvent({
+        type: 'keyDown',
+        keyCode: key,
+      })
+    }
+
+    await new Promise(resolve => setTimeout(resolve, options?.delay || 10))
+
+    for (const key of keys) {
+      this.contents.sendInputEvent({
+        type: 'keyUp',
+        keyCode: key,
+      })
+    }
+  }
+
+  async focus(options?: {
+    timeout?: number
+  }) {
+    return this.contents.executeJavaScript(/* js */`
+      (function() {
+        const target = ${this._getElement(options?.timeout)};
+        if (!target) return null;
+
+        // 验证输入框是否是文本类型
+        if (target.element.tagName !== 'INPUT' && target.element.tagName !== 'TEXTAREA' && !target.element.isContentEditable) return null;
+
+        target.element.focus();
+      })()
+    `)
+  }
 
   /**
    * 检查元素是否存在
