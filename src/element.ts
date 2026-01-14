@@ -1,5 +1,8 @@
 import type { WebContents } from 'electron'
 
+/**
+ * 扩展版的元素位置信息，基于 DOMRect 并补充中心点坐标。
+ */
 export interface IBoundingClientRect {
   x: number
   y: number
@@ -13,16 +16,29 @@ export interface IBoundingClientRect {
   centerY: number
 }
 
+/**
+ * 二维向量坐标。
+ */
 export interface IVector2D {
   x: number
   y: number
 }
 
+/**
+ * 尺寸信息。
+ */
 export interface ISize {
   width: number
   height: number
 }
 
+/**
+ * ElementHandle
+ *
+ * - 封装了在指定 WebContents 中对单个元素进行操作的能力
+ * - 选择器支持 iframe 穿越，形如：`iframe.sel |> .inner |> button.submit`
+ * - 大多数 API 接受 `timeout`，轮询查找元素直到超时
+ */
 export class ElementHandle {
   isNotFound = false
 
@@ -31,6 +47,12 @@ export class ElementHandle {
     public readonly selector: string,
   ) {}
 
+  /**
+   * 生成在 renderer 端执行的查找脚本。
+   * - 通过 `|>` 支持逐层进入 iframe。
+   * - 在 `window.__ELECTROL__` 上缓存找到的元素及其 rect，以减少后续访问成本。
+   * - 当传入 `timeout > 0` 时会在 renderer 端做原地轮询，直到找到或超时。
+   */
   private _getElement(timeout: number = 0): string {
     return /* js */`
      (()=>{
@@ -44,6 +66,7 @@ export class ElementHandle {
             return window.__ELECTROL__[selector];
           }
 
+          // 分层选择器，支持 iframe 穿越
           const parts = selector.split('|>').map(s => s.trim());
           if (!parts.length) return null;
 
@@ -56,6 +79,7 @@ export class ElementHandle {
             if (!currentDocument) return null;
 
             const part = parts[i];
+            // 在当前文档查找该层选择器
             const el = currentDocument.querySelector(part);
 
             if (!el) {
@@ -93,6 +117,7 @@ export class ElementHandle {
           const finalRect = element.getBoundingClientRect();
 
           // 缓存元素
+          // 缓存以避免重复查找
           window.__ELECTROL__[selector] = {
             element,
             rect: new DOMRect(
@@ -122,6 +147,9 @@ export class ElementHandle {
     `
   }
 
+  /**
+   * 触发元素 mouseover 事件（不移动真实鼠标）。
+   */
   hover() {
     return this.contents.executeJavaScript(/* js */`
       (function() {
@@ -140,8 +168,10 @@ export class ElementHandle {
 
   /**
    * 点击
-   * 注意：此操作会触发鼠标悬浮事件
-   * @param options 点击选项
+   * - 通过 WebContents.sendInputEvent 发送 mouseDown/mouseUp 事件
+   * - 默认在元素中心点点击
+   * - 支持修饰键（Alt/Control/Meta/Shift）按下期间点击
+   * - 注意：此操作会触发鼠标悬浮事件
    */
   async click(options?: {
     button?: 'left' | 'right' | 'middle'
@@ -206,7 +236,7 @@ export class ElementHandle {
 
   /**
    * 双击
-   * @param options 双击选项
+   * - 底层复用 click，并将 `clickCount` 设为 2。
    */
   async dblclick(options?: {
     button?: 'left' | 'right' | 'middle'
@@ -222,7 +252,7 @@ export class ElementHandle {
   }
 
   /**
-   * 复选框或单选按钮
+   * 将复选框或单选按钮设为选中，并派发 change 事件。
    */
   check() {
     return this.contents.executeJavaScript(/* js */`
@@ -240,10 +270,9 @@ export class ElementHandle {
   }
 
   /**
-   * 填充输入框, Value to set for the <input>, <textarea> or [contenteditable] element.
-   * @param value 输入的值
-   * @param options 选项
-   * @returns
+   * 填充输入框内容。
+   * - 适用于 `<input>`、`<textarea>` 或 `contenteditable` 元素。
+   * - 会触发 `input` 事件（冒泡）。
    */
   async fill(value: string, options?: {
     timeout?: number
@@ -265,13 +294,12 @@ export class ElementHandle {
   }
 
   /**
-   * 聚焦元素，然后使用keyboard.down() 和keyboard.up()。
-   * @param key 要按下的键
-   * @param options 选项
-   * @returns
+   * 在元素上发送按键事件。
+   * - 先调用 `focus()`，随后按下并抬起指定组合键。
+   * - 组合键用 `+` 连接，如 `Control+Shift+A`。
    * @example
-   * press('a', { delay: 100, timeout: 1000 });
-   * press('Control+Shift+T'});
+   * press('a', { delay: 100, timeout: 1000 })
+   * press('Control+Shift+T')
    */
   async press(key: string, options?: {
     delay?: number
@@ -298,6 +326,9 @@ export class ElementHandle {
     }
   }
 
+  /**
+   * 聚焦输入型元素（input/textarea/contenteditable）。
+   */
   async focus(options?: {
     timeout?: number
   }) {
@@ -315,16 +346,15 @@ export class ElementHandle {
   }
 
   /**
-   * 检查元素是否存在
-   * @param timeout 超时时间
+   * 检查元素是否存在（支持超时轮询）。
    */
   async exist(timeout?: number): Promise<boolean> {
     return await this.contents.executeJavaScript(/* js */`!!${this._getElement(timeout)}`)
   }
 
   /**
-   * 获取元素的位置信息
-   * @returns 元素的位置信息
+   * 获取元素的位置信息。
+   * - 返回扩展的 DOMRect 信息并包含元素中心点坐标。
    */
   getBoundingClientRect(timeout: number = 0): Promise<IBoundingClientRect | null> {
     if (this.isNotFound)
