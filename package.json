@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "packageManager": "pnpm@10.25.0",
-  "description": "",
+  "description": "一个基于 Electron WebContents 的轻量级自动化助手，用于在你的应用内对网页内容进行交互（点击、输入、聚焦、键盘事件等）。",
   "author": "Cee Vee X <ceeveex@hotmail.com>",
   "license": "MIT",
   "funding": "https://github.com/sponsors/ceeveex",
