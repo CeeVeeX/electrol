@@ -151,10 +151,10 @@ export class ElementHandle {
   /**
    * 触发元素 mouseover 事件（不移动真实鼠标）。
    */
-  hover() {
+  hover(options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         const event = new MouseEvent('mouseover', {
@@ -255,10 +255,10 @@ export class ElementHandle {
   /**
    * 将复选框或单选按钮设为选中，并派发 change 事件。
    */
-  check() {
+  check(options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         // 验证输入框是否是复选框或单选按钮
@@ -413,10 +413,10 @@ export class ElementHandle {
    * @param value 选项的值
    * @returns
    */
-  async selectOption(value: string) {
+  async selectOption(value: string, options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         // 验证元素是否为选择框
@@ -431,10 +431,10 @@ export class ElementHandle {
   /**
    * 获取元素的 HTML 内容。
    */
-  async innerHTML() {
+  async innerHTML(options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         return target.element.innerHTML;
@@ -445,10 +445,10 @@ export class ElementHandle {
   /**
    * 获取元素的文本内容。
    */
-  async innerText() {
+  async innerText(options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         return target.element.innerText;
@@ -460,10 +460,10 @@ export class ElementHandle {
    * 获取元素的文本内容。
    * @returns 元素的文本内容
    */
-  async textContent() {
+  async textContent(options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         return target.element.textContent;
@@ -475,10 +475,10 @@ export class ElementHandle {
    * 获取元素的输入值。
    * @returns 元素的输入值
    */
-  async inputValue() {
+  async inputValue(options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         // 验证输入框是否是文本类型
@@ -493,10 +493,10 @@ export class ElementHandle {
    * 获取元素的选中状态。
    * @returns 元素的选中状态
    */
-  async isChecked() {
+  async isChecked(options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         // 验证输入框是否是复选框或单选框
@@ -511,10 +511,10 @@ export class ElementHandle {
    * 获取元素的禁用状态。
    * @returns 元素的禁用状态
    */
-  async isDisabled() {
+  async isDisabled(options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         return target.element.disabled;
@@ -526,10 +526,10 @@ export class ElementHandle {
    * 获取元素的可见状态。
    * @returns 元素的可见状态
    */
-  async isVisible() {
+  async isVisible(options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         return target.element.offsetParent !== null;
@@ -541,10 +541,10 @@ export class ElementHandle {
    * 获取元素的可用状态。
    * @returns 元素的可用状态
    */
-  async isEnabled() {
+  async isEnabled(options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         return !target.element.disabled;
@@ -556,10 +556,10 @@ export class ElementHandle {
    * 获取元素的可编辑状态。
    * @returns 元素的可编辑状态
    */
-  async isEditable() {
+  async isEditable(options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         return target.element.isContentEditable;
@@ -571,10 +571,10 @@ export class ElementHandle {
    * 获取元素的隐藏状态。
    * @returns 元素的隐藏状态
    */
-  async isHidden() {
+  async isHidden(options?: { timeout?: number }) {
     return this.contents.executeJavaScript(/* js */`
       (function() {
-        const target = ${this._getElement()};
+        const target = ${this._getElement(options?.timeout)};
         if (!target) return null;
 
         return target.element.offsetParent === null;
