@@ -31,6 +31,7 @@ async function createWindow() {
     const textArea = ectrol.$('#textArea')
     const checkbox1 = ectrol.$('#checkbox1')
     const radio2 = ectrol.$('#radio2')
+    const dropdown = ectrol.$('#dropdown')
 
     await new Promise(resolve => setTimeout(resolve, 5000))
 
@@ -45,6 +46,7 @@ async function createWindow() {
     await textArea.fill('This is a text area.\n多行文本测试。')
     await checkbox1.check()
     await radio2.check()
+    await dropdown.selectOption('option2')
 
     /** ------------------------------------------------------------------------------------------------- */
 
@@ -54,6 +56,7 @@ async function createWindow() {
     const iframe_textArea = ectrol.$('iframe|>textarea#textArea')
     const iframe_checkbox1 = ectrol.$('iframe|>input#checkbox1')
     const iframe_radio2 = ectrol.$('iframe|>input#radio2')
+    const iframe_dropdown = ectrol.$('iframe|>select#dropdown')
 
     await new Promise(resolve => setTimeout(resolve, 3000))
     await iframe_btn1.click()
@@ -67,6 +70,7 @@ async function createWindow() {
     await iframe_textArea.fill('This is a text area.\n多行文本测试。')
     await iframe_checkbox1.check()
     await iframe_radio2.check()
+    await iframe_dropdown.selectOption('option2')
   })
 }
 
