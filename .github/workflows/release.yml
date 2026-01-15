@@ -25,4 +25,4 @@ jobs:
       - run: pnpm i -g @antfu/ni
       - run: nci
       - run: |
-          NODE_AUTH_TOKEN="" pnpm -r publish --access public --no-git-checks
+          NODE_AUTH_TOKEN="" pnpm publish
