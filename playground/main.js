@@ -33,12 +33,12 @@ async function createWindow() {
     const radio2 = ectrol.$('#radio2')
     const dropdown = ectrol.$('#dropdown')
 
-    await new Promise(resolve => setTimeout(resolve, 5000))
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
     await btn1.click()
     await btn2.click()
 
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    await new Promise(resolve => setTimeout(resolve, 1000))
     await btn1.hover()
     await btn2.hover()
 
@@ -58,11 +58,11 @@ async function createWindow() {
     const iframe_radio2 = ectrol.$('iframe|>input#radio2')
     const iframe_dropdown = ectrol.$('iframe|>select#dropdown')
 
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    await new Promise(resolve => setTimeout(resolve, 1000))
     await iframe_btn1.click()
     await iframe_btn2.click()
 
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    await new Promise(resolve => setTimeout(resolve, 1000))
     await iframe_btn1.hover()
     await iframe_btn2.hover()
 

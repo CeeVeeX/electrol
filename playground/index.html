@@ -4,6 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <title>Hello from Electron renderer!</title>
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="
+      script-src 'self' 'unsafe-inline';
+    "
+  />
   <style>
     body {
       font-family: Arial, sans-serif;
