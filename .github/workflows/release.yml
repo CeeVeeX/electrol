@@ -24,4 +24,4 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: pnpm i -g @antfu/ni
       - run: nci
-      - run: pnpm publish
+      - run: pnpm -r publish --access public --no-git-checks
