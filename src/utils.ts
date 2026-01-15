@@ -1,8 +1,21 @@
+export function randomInRange(
+  min: number,
+  max: number,
+  integer = false,
+): number {
+  if (min > max) {
+    [min, max] = [max, min]
+  }
+
+  const value = Math.random() * (max - min) + min
+  return integer ? Math.floor(value) : value
+}
+
 export function getHumanTypingDelay(index: number, text: string) {
   const char = text[index]
 
-  // ===== 1. 基础速度（约 90–150 ms）=====
-  let delay = 90 + Math.random() * 60
+  // ===== 1. 基础速度 =====
+  let delay = randomInRange(16, 100)
 
   // ===== 2. 索引相关：开头慢，中段快，结尾慢 =====
   const progress = index / text.length
@@ -16,16 +29,16 @@ export function getHumanTypingDelay(index: number, text: string) {
 
   // ===== 3. 字符类型权重 =====
   if (char === ' ') {
-    delay += 40
+    delay += 16
   }
 
   if (/[,.!?;:]/.test(char)) {
-    delay += 200 + Math.random() * 150
+    delay += randomInRange(16, 50)
   }
 
   // ===== 4. 小概率“走神”停顿 =====
   if (Math.random() < 0.03) {
-    delay += 300 + Math.random() * 500
+    delay += randomInRange(100, 200)
   }
 
   // ===== 5. 下限保护 =====
